@@ -1,0 +1,22 @@
+name: Update Docker Hub Description
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - README.md
+      - .github/workflows/dockerhub-description.yml
+jobs:
+  readme:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: 📝 Update Docker Hub README
+      uses: peter-evans/dockerhub-description@v5
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        repository: peterevans/dockerhub-description
+        short-description: ${{ github.event.repository.description }}
+        enable-url-completion: true
