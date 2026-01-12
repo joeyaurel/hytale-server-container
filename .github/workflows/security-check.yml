@@ -1,34 +1,73 @@
-name: "🔍 Daily Vulnerability Audit (Trivy)"
+name: "🔍 Security & Shell Lint"
 
 on:
-  schedule:
-    # Runs at 00:00 UTC every day
-    - cron: '0 0 * * *'
-  workflow_dispatch:
-    # Allows you to trigger the scan manually from the Actions tab
-
-permissions:
-  contents: read        # To check out the code
-  security-events: write # To upload SARIF results to the Security tab
-  actions: read         # Required for some security integrations
+  push:
+    branches: [ "experimental" ]
+  pull_request:
+    branches: [ "experimental" ]
 
 jobs:
-  trivy_scan:
-    name: Trivy Security Scan
+  hadolint:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    strategy:
+      matrix:
+        dockerfile: [Dockerfile.alpine, Dockerfile.ubuntu, Dockerfile.alpine-liberica]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Hadolint
+        run: |
+          curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+          chmod +x /usr/local/bin/hadolint
+
+      - name: Lint Dockerfile (SARIF + console)
+        run: |
+          echo "Linting ${{ matrix.dockerfile }}..."
+          # Output SARIF for GitHub Code Scanning
+          hadolint "${{ matrix.dockerfile }}" --no-fail -f sarif > "sarif-${{ matrix.dockerfile }}.sarif" || true
+          # Also print warnings/errors in console for visibility
+          hadolint "${{ matrix.dockerfile }}" || true
+
+      - name: Upload Hadolint SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: "sarif-${{ matrix.dockerfile }}.sarif"
+          category: hadolint
+
+  trivy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: 'freudend/docker-hytale-server:latest'
+          scan-type: 'fs'
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3 # Updated to v3 for 2026 compatibility
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+          category: trivy
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: './scripts'
