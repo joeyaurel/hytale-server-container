@@ -13,5 +13,5 @@ check_integrity
 check_container_hardening
 check_clock_sync
 
-echo -e "\n${BOLD}${GREEN}✔ Security audit finished.${NC}"
+echo -e "\n${BOLD}${GREEN}✔ Security audit complete.${NC}"
 exit 0

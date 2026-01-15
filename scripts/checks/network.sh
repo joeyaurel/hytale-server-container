@@ -16,5 +16,5 @@ check_port_availability
 check_udp_stack
 
 # A clean final confirmation
-echo -e "\n${GREEN}${BOLD}✔ Network audit finished successfully.${NC}"
+echo -e "\n${GREEN}${BOLD}✔ Network audit complete.${NC}"
 exit 0

@@ -14,5 +14,5 @@ check_system_resources
 check_filesystem
 check_stability
 
-echo -e "\n${BOLD}${GREEN}✔ Production readiness checks finished.${NC}"
+echo -e "\n${BOLD}${GREEN}✔ Production readiness audit complete.${NC}"
 exit 0
