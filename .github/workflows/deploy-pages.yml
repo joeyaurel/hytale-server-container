@@ -63,32 +63,6 @@ jobs:
           echo "=== _site directory permissions ==="
           ls -ld ./_site
 
-      - name: Fix _site permissions
-        run: |
-          sudo chown -R $(whoami):$(whoami) ./_site
-          sudo chmod -R u+w ./_site
-          
-      - name: Copy static web files
-        run: |
-          echo "Copying robots.txt..."
-          cp -v assets/website/robots.txt ./_site/robots.txt
-          echo "Copying llms.txt..."
-          cp -v assets/website/llms.txt ./_site/llms.txt
-          echo "Copying favicon.ico..."
-          cp -v assets/website/favicon.ico ./_site/favicon.ico
-          echo "Copy complete!"
-
-      - name: 🔍 Debug - Verify copied files
-        run: |
-          echo "=== Checking if files were copied ==="
-          ls -lh ./_site/robots.txt ./_site/llms.txt ./_site/favicon.ico
-          echo ""
-          echo "=== Content of robots.txt ==="
-          cat ./_site/robots.txt
-          echo ""
-          echo "=== Files in _site root ==="
-          ls -lah ./_site/
-
       - name: Generate Sitemap
         uses: cicirello/generate-sitemap@v1.10.4
         with:
