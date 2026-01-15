@@ -3,6 +3,9 @@
 .gitignore
 .github
 
+# Specific repo files
+/assets
+
 # Documentation and metadata
 README.md
 SECURITY.md
@@ -20,12 +23,9 @@ docker-compose.yml
 tmp/
 dist/
 .cache/
-<<<<<<< HEAD
 /data
-=======
 **/data
 **/data/**
->>>>>>> experimental
 
 # OS specific files
 .DS_Store
